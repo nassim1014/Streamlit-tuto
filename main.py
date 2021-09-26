@@ -4,7 +4,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from  sklearn.metrics import r2_score
+from sklearn.ensemble import RandomForestRegressor
+from  sklearn.metrics import r2_score,mean_absolute_error,mean_squared_error
 header=st.beta_container()
 dataset=st.beta_container()
 features=st.beta_container()
@@ -34,7 +35,24 @@ with modeltraining :
     chart_data = pd.DataFrame(np.random.randn(20, 3),
     columns=['a', 'b', 'c'])
     st.area_chart(chart_data)
+
     sel_col,disp_col=st.beta_columns(2)
     max_depth=sel_col.slider("whats the max depth of the model",min_value=10,max_value=100,value=20,step=10)
-    n_estimator=sel_col.selectbox('how many trees: ',options=[1,2,3,'No limits'],index=0)
-    input=sel_col.text_input("what the hell")
+    n_estimators=sel_col.selectbox('how many trees: ',options=[50,100,200,'No limits'],index=0)
+    input_feature=sel_col.text_input("what the hell","highway-mpg")
+
+    regr=RandomForestRegressor(max_depth=max_depth,n_estimators=n_estimators)
+    X=df[[input_feature]]
+    Y=df[["price"]]
+    regr.fit(X,Y)
+    prediction=regr.predict(Y)
+
+    disp_col.subheader('MAE:')
+    disp_col.write(mean_absolute_error(Y,prediction))
+
+    disp_col.subheader('MSE:')
+    disp_col.write(mean_squared_error(Y,prediction))
+
+    disp_col.subheader('R square:')
+    disp_col.write(r2_score(Y,prediction))
+
